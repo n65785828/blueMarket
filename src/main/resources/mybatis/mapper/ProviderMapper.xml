@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.study02.mapper.ProviderMapper">
+    <select id="getAllProviders" resultType="top.study02.pojo.Provider">
+      select * from provider
+    </select>
+
+    <delete id="deleteProviderByPrimaryKey">
+        delete from  provider where id = #{param1}
+    </delete>
+
+    <select id="getProviderByPrimaryKey" resultType="top.study02.pojo.Provider">
+        select * from provider where id = #{param1}
+    </select>
+
+    <update id="upDateProviderByPrimaryKey">
+        update provider set providerName=#{providerName},contacts=#{contacts},contactPhone=#{contactPhone},faxNum=#{faxNum},proId=#{proId},address=#{address},`describe`=#{describe} where id=#{id}
+    </update>
+
+    <insert id="addProvider">
+        insert into provider values
+        (null,#{providerName},#{contacts},#{contactPhone},
+        #{faxNum},#{createDate},#{proId},#{address},#{describe})
+    </insert>
+
+    <select id="getProviderByProviderName" resultType="top.study02.pojo.Provider">
+        select * from provider where providerName = #{providerName}
+    </select>
+
+    <select id="getProviderByProId" resultType="top.study02.pojo.Provider">
+        select * from provider where proId = #{proId}
+    </select>
+
+    <select id="getProviderInBills" resultType="top.study02.pojo.Provider">
+        select  * from provider
+        where id in
+        (select distinct provider from bill)
+    </select>
+</mapper>

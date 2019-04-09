@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>超市账单管理系统</title>
+    <link rel="stylesheet" href="css/public.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+<!--头部-->
+<header class="publicHeader" th:replace="~{public::publicHeader}">
+</header>
+<!--时间-->
+<section class="publicTime">
+    <span id="time">2015年1月1日 11:11  星期一</span>
+    <a href="#">温馨提示：为了能正常浏览，请使用高版本浏览器！（IE10+）</a>
+</section>
+<!--主体内容-->
+<section class="publicMian ">
+    <div class="left">
+        <h2 class="leftH2"><span class="span1"></span>功能列表 <span></span></h2>
+        <nav>
+            <ul class="list">
+                <li id="active"><a href="billList.html">账单管理</a></li>
+                <li><a href="providerList.html">供应商管理</a></li>
+                <li><a href="userList.html?pageSize=8">用户管理</a></li>
+                <li><a href="password.html">密码修改</a></li>
+                <li><a href="login.html">退出系统</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="right">
+        <div class="location">
+            <strong>你现在所在的位置是:</strong>
+            <span>账单管理页面 >> 订单添加页面</span>
+        </div>
+        <div class="providerAdd">
+            <form action="/billAdd.html" method="post">
+                <!--div的class 为error是验证错误，ok是验证成功-->
+                <div class="">
+                    <label for="billId">订单编码：</label>
+                    <input type="text" th:value="${bill!=null}?${bill.goodsId}" name="goodsId" id="billId" required/>
+                    <span th:text="${goodsIdError}"></span>
+                </div>
+                <div>
+                    <label for="billName">商品名称：</label>
+                    <input type="text" th:value="${bill!=null}?${bill.goodsName}" name="goodsName" id="billName" required/>
+                    <span th:text="${goodsNameError}"></span>
+                </div>
+                <div>
+                    <label for="billCom">商品单位：</label>
+                    <input type="text" th:value="${bill!=null}?${bill.unit}" name="unit" id="billCom" required/>
+                    <span th:text="${unitError}"></span>
+
+                </div>
+                <div>
+                    <label for="billNum">商品数量：</label>
+                    <input type="number" th:value="${bill!=null}?${bill.goodsNum}" name="goodsNum" id="billNum" required/>
+                    <span></span>
+                </div>
+                <div>
+                    <label for="money">总金额：</label>
+                    <input type="text" th:value="${bill!=null}?${#numbers.formatDecimal(bill.goodsPrice/100.0,1,2)}" name="goodsPrice" id="money" required/>
+                    <span id="moneySpan"></span>
+                </div>
+                <div>
+                    <label >供应商：</label>
+                    <select name="provider.id" >
+                        <option value="0">--请选择相应的提供商--</option>
+                        <option th:each="provider:${providersInBill}"   th:selected="${bill!=null&&bill.provider.id==provider.id}?selected" th:value="${provider.id}" th:text="${provider.providerName}"></option>
+                    </select>
+                    <span th:text="${providerError}"></span>
+                </div>
+                <div>
+                    <label >是否付款：</label>
+                    <input type="radio" name="payment"  value="false" checked="checked" />未付款
+                    <input type="radio" name="payment"  value="true" />已付款
+                </div>
+                <input type="submit" id="submit" hidden="hidden">
+                <div class="providerAddBtn">
+                    <!--<a href="#">保存</a>-->
+                    <!--<a href="billList.html">返回</a>-->
+                    <input type="button" value="保存"  onclick="submitBillAdd()"/>
+                    <input type="button" value="返回" onclick="history.back(-1)"/>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>
+<footer class="footer">
+</footer>
+<script src="js/time.js"></script>
+<script>
+    function submitBillAdd(){
+        var priceRegx = /^(([1-9]{1}\d*)|(0{1}))(\.\d{2})$/;
+        if(!priceRegx.test($("#money").val())) {
+            $("#moneySpan").html('请输入一个金额保留小数点后两位，如288.50');
+            return
+        }
+        $("#money").val($("#money").val()*100);
+        $("#submit").click();
+    }
+</script>
+</body>
+</html>

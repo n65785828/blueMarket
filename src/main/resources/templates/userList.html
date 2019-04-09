@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>超市账单管理系统</title>
+    <link rel="stylesheet" href="css/public.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<!--头部-->
+<header class="publicHeader" th:replace="~{public::publicHeader}">
+</header>
+<!--时间-->
+    <section class="publicTime">
+        <span id="time">2015年1月1日 11:11  星期一</span>
+        <a href="#">温馨提示：为了能正常浏览，请使用高版本浏览器！（IE10+）</a>
+    </section>
+<!--主体内容-->
+    <section class="publicMian ">
+        <div class="left">
+            <h2 class="leftH2"><span class="span1"></span>功能列表 <span></span></h2>
+            <nav>
+                <ul class="list">
+                    <li><a href="billList.html">账单管理</a></li>
+                    <li><a href="providerList.html">供应商管理</a></li>
+                    <li  id="active"><a href="userList.html?pageSize=8">用户管理</a></li>
+                    <li><a href="password.html">密码修改</a></li>
+                    <li><a href="login.html">退出系统</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="right">
+            <div class="location">
+                <strong>你现在所在的位置是:</strong>
+                <span>用户管理页面</span>
+            </div>
+            <div class="search">
+                <span>用户名：</span>
+                <input name="userName" type="text" id="query" placeholder="请输入用户名"/>
+                <input id="queryBtn" type="button" value="查询"/>
+                <a href="userAdd.html?userLv=3">添加用户</a>
+            </div>
+            <!--用户-->
+            <table class="providerTable" cellpadding="0" cellspacing="0">
+                <tr class="firstTr">
+                    <th width="10%">用户编码</th>
+                    <th width="20%">用户名称</th>
+                    <th width="10%">性别</th>
+                    <th width="10%">年龄</th>
+                    <th width="10%">电话</th>
+                    <th width="10%">用户类型</th>
+                    <th width="30%">操作</th>
+                </tr>
+                <p th:text="${noFound}" style="color: red"></p>
+                <tr th:each="user:${users}" >
+                    <td th:text="${user.userId}">hanlu</td>
+                    <td th:text="${user.userName}">韩露</td>
+                    <td th:text="${user.sex}?男:女">女</td>
+                    <td th:text="${user.age}">20</td>
+                    <td th:text="${user.userphone}">15918230478</td>
+                    <td th:text="${user.userlv}">经理</td>
+                    <td>
+                        <a th:href="@{/userView.html(id=${user.id},userLv=${user.userlv.equals('普通用户')}?3:2,pageNum=${pageNum})}"><img src="img/read.png" alt="查看" title="查看"/></a>
+                        <a th:href="@{/userUpdate.html(id=${user.id},userLv=${user.userlv.equals('普通用户')}?3:2,pageNum=${pageNum})}"><img src="img/xiugai.png" alt="修改" title="修改"/></a>
+                        <a href="javascript:void(0)" th:name="${user.id}"  class="removeUser"><img src="img/schu.png" th:name="${user.userlv.equals('普通用户')}?3:2" th:alt="${pageNum}" title="删除"/></a>
+                    </td>
+                </tr>
+            </table>
+            <div class="zxf_pagediv"></div>
+            <script src="js/jquery.js"></script>
+            <script src="js/js.js"></script>
+            <script src="js/time.js"></script>
+            <link rel="stylesheet" type="text/css" href="css/zxf_page.css"/>
+            <script>
+                (function($){
+                    var zp = {
+                        init:function(obj,pageinit){
+                            return (function(){
+                                zp.addhtml(obj,pageinit);
+                                zp.bindEvent(obj,pageinit);
+                            }());
+                        },
+                        addhtml:function(obj,pageinit){
+                            return (function(){
+                                obj.empty();
+                                /*上一页*/
+                                if (pageinit.current > 1) {
+                                    obj.append('<a href="javascript:;" class="prebtn">上一页</a>');
+                                } else{
+                                    obj.remove('.prevPage');
+                                    obj.append('<span class="disabled">上一页</span>');
+                                }
+                                /*中间页*/
+                                if (pageinit.current >4 && pageinit.pageNum > 4) {
+                                    obj.append('<a href="javascript:;" class="zxfPagenum">'+1+'</a>');
+                                    obj.append('<a href="javascript:;" class="zxfPagenum">'+2+'</a>');
+                                    obj.append('<span>...</span>');
+                                }
+                                if (pageinit.current >4 && pageinit.current <= pageinit.pageNum-5) {
+                                    var start  = pageinit.current - 2,end = pageinit.current + 2;
+                                }else if(pageinit.current >4 && pageinit.current > pageinit.pageNum-5){
+                                    var start  = pageinit.pageNum - 4,end = pageinit.pageNum;
+                                }else{
+                                    var start = 1,end = 9;
+                                }
+                                for (;start <= end;start++) {
+                                    if (start <= pageinit.pageNum && start >=1) {
+                                        if (start == pageinit.current) {
+                                            obj.append('<span class="current">'+ start +'</span>');
+                                        } else if(start == pageinit.current+1){
+                                            obj.append('<a href="javascript:;" class="zxfPagenum nextpage">'+ start +'</a>');
+                                        }else{
+                                            obj.append('<a href="javascript:;" class="zxfPagenum">'+ start +'</a>');
+                                        }
+                                    }
+                                }
+                                if (end < pageinit.pageNum) {
+                                    obj.append('<span>...</span>');
+                                }
+                                /*下一页*/
+                                if (pageinit.current >= pageinit.pageNum) {
+                                    obj.remove('.nextbtn');
+                                    obj.append('<span class="disabled">下一页</span>');
+                                } else{
+                                    obj.append('<a href="javascript:;" class="nextbtn">下一页</a>');
+                                }
+                                /*尾部*/
+                                obj.append('<span>'+'共'+'<b>'+pageinit.pageNum+'</b>'+'页，'+'</span>');
+                                obj.append('<span>'+'到第'+'<input type="number" class="zxfinput" value="'+pageinit.current+'"/>'+'页'+'</span>');
+                                obj.append('<span class="zxfokbtn">'+'确定'+'</span>');
+                            }());
+                        },
+                        bindEvent:function(obj,pageinit){
+                            return (function(){
+                                obj.on("click","a.prebtn",function(){
+                                    var cur = parseInt(obj.children("span.current").text());
+                                    var current = $.extend(pageinit, {"current":cur-1});
+                                    zp.addhtml(obj,current);
+                                    if (typeof(pageinit.backfun)=="function") {
+                                        pageinit.backfun(current);
+                                    }
+                                });
+                                obj.on("click","a.zxfPagenum",function(){
+                                    var cur = parseInt($(this).text());
+                                    var current = $.extend(pageinit, {"current":cur});
+                                    zp.addhtml(obj,current);
+                                    if (typeof(pageinit.backfun)=="function") {
+                                        pageinit.backfun(current);
+                                    }
+                                });
+                                obj.on("click","a.nextbtn",function(){
+                                    var cur = parseInt(obj.children("span.current").text());
+                                    var current = $.extend(pageinit, {"current":cur+1});
+                                    zp.addhtml(obj,current);
+                                    if (typeof(pageinit.backfun)=="function") {
+                                        pageinit.backfun(current);
+                                    }
+                                });
+                                obj.on("click","span.zxfokbtn",function(){
+                                    var cur = parseInt($("input.zxfinput").val());
+                                    if(cur>pageinit.pageNum||cur<1){
+                                        cur=1;
+                                    }
+                                    var current = $.extend(pageinit, {"current":cur});
+                                    zp.addhtml(obj,{"current":cur,"pageNum":pageinit.pageNum});
+                                    if (typeof(pageinit.backfun)=="function") {
+                                        pageinit.backfun(current);
+                                    }
+                                });
+                            }());
+                        }
+                    }
+                    $.fn.createPage = function(options){
+                        var pageinit = $.extend({
+                            pageNum : 15,
+                            current : 1,
+                            backfun : function(){}
+                        },options);
+                        zp.init(this,pageinit);
+                    }
+                }(jQuery));
+            </script>
+            <script th:inline="javascript">
+            $(function () {
+                var flag = [[${errorFlag}]];
+                if(flag!=null){
+                    alert([[${error}]]);
+                }
+            })
+        </script>
+            <script type="text/javascript">
+                //翻页
+                $(".zxf_pagediv").createPage({
+                    pageNum: [[${totalPageNum}]],
+                    current: [[${pageNum}]],
+                    backfun: function(e) {
+                       var pagenum = this.current;
+                        $.ajax({
+                            type: "POST",
+                            url: "/userList.html",
+                            dataType:"JSON",//预期服务器返回数据类型
+                            data:{
+                                "pageNum":this.current,
+                                "pageSize":'8'
+                            },
+                            async: false,
+                            success: function(msg){
+                                $(".providerTable").html("");
+                                $(".providerTable").append(" <tr class=\"firstTr\">\n" +
+                                    "                    <th width=\"10%\">用户编码</th>\n" +
+                                    "                    <th width=\"20%\">用户名称</th>\n" +
+                                    "                    <th width=\"10%\">性别</th>\n" +
+                                    "                    <th width=\"10%\">年龄</th>\n" +
+                                    "                    <th width=\"10%\">电话</th>\n" +
+                                    "                    <th width=\"10%\">用户类型</th>\n" +
+                                    "                    <th width=\"30%\">操作</th>\n" +
+                                    "                </tr>")
+                                var userlv =2;
+                                $.each(msg,function (gi,obj) {
+                                    // if(obj.sex){
+                                    //     obj.sex='男';
+                                    // }else {
+                                    //     obj.sex='女';
+                                    // }
+                                    obj.sex=obj.sex?'男':'女';
+                                    userlv = obj.userlv=='普通用户'?3:2;
+
+                                    $(".providerTable").append(" <tr>\n" +
+                                        "                    <td>"+obj.userId+"</td>\n" +
+                                        "                    <td>"+obj.userName+"</td>\n" +
+                                        "                    <td>"+obj.sex+"</td>\n" +
+                                        "                    <td >"+obj.age+"</td>\n" +
+                                        "                    <td>"+obj.userphone+"</td>\n" +
+                                        "                    <td>"+obj.userlv+"</td>\n" +
+                                        "                    <td>\n" +
+                                        "                        <a href=\"/userView.html?id="+obj.id+"&pageNum="+pagenum+"\"><img src=\"img/read.png\" alt=\"查看\" title=\"查看\"/></a>\n" +
+                                        "                        <a href=\"/userUpdate.html?id="+obj.id+"&userLv="+userlv+"&pageNum="+pagenum+"\"><img src=\"img/xiugai.png\" alt=\"修改\" title=\"修改\"/></a>\n" +
+                                        "                        <a href=\"javascript:void(0)\" name=\""+obj.id+"\" class=\"removeUser\"><img  src=\"img/schu.png\" alt=\""+pagenum+"\" name=\""+userlv+"\" title=\"删除\"/></a>\n" +
+                                        "                    </td>\n" +
+                                        "</tr>")
+
+                                    }
+                                )
+                                bindRemoveUser();
+                            },
+                            error:function () {
+                                alert("error");
+                            }
+                        });
+                    }
+                });
+
+                $(function () {
+                    $("#queryBtn").click(function () {
+                        $("#queryInput").val($("#query").val());
+                        $("#querySubmit").click();
+                    })
+                })
+            </script>
+
+        </div>
+    </section>
+
+<!--点击删除按钮后弹出的页面-->
+<div class="zhezhao"></div>
+<div class="remove" id="removeUse">
+    <div class="removerChid">
+        <h2>提示</h2>
+        <div class="removeMain">
+            <p>你确定要删除该用户吗？</p>
+            <a href="#" id="yes">确定</a>
+            <a href="#" id="no">取消</a>
+        </div>
+    </div>
+</div>
+<form action="queryUser" method="post">
+    <input name="userName" type="text" id="queryInput" placeholder="请输入用户名" hidden="hidden" />
+    <input type="submit" id="querySubmit" hidden="hidden">
+</form>
+    <footer class="footer">
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.study02.mapper.BillMapper">
+    <resultMap id="billMap" type="top.study02.pojo.Bill">
+        <id property="id" column="id"/>
+        <result property="goodsId" column="goodsId"/>
+        <result property="goodsName" column="goodsName"/>
+        <result property="goodsPrice" column="goodsPrice"/>
+        <result property="payment" column="payment"/>
+        <result property="createDate" column="createDate"/>
+        <result property="goodsNum" column="goodsNum"/>
+        <result property="unit" column="unit"/>
+        <association property="provider" javaType="top.study02.pojo.Provider">
+            <id property="id" column="pid"/>
+            <result property="providerName" column="providerName"/>
+            <result property="proId" column="proId"/>
+            <result property="contacts" column="contacts"/>
+            <result property="contactPhone" column="contactPhone"/>
+            <result property="faxNum" column="faxNum"/>
+            <result property="describe" column="describe"/>
+            <result property="address" column="address"/>
+            <result property="createDate" column="pcreateDate"/>
+        </association>
+    </resultMap>
+
+    <select id="getAllBills" resultMap="billMap">
+      select * from bill as tb1
+      left join
+      (select id as pid ,proId,providerName ,contacts ,`describe`,address,contactPhone,faxNum,createDate as pcreateDate
+      from provider) as tb2
+      on tb1.provider=tb2.pid
+    </select>
+
+    <select id="getBillsByPrimaryKey" resultMap="billMap">
+              select * from bill as tb1
+      left join
+      (select id as pid ,proId,providerName ,contacts ,`describe`,address,contactPhone,faxNum,createDate as pcreateDate
+      from provider) as tb2
+      on tb1.provider=tb2.pid having id=#{id}
+    </select>
+
+    <update id="updateBill">
+        update  bill set
+        goodsId=#{goodsId} ,goodsName=#{goodsName},
+        goodsPrice=#{goodsPrice},payment=#{payment},provider=#{provider.id},
+        goodsNum=#{goodsNum},unit=#{unit}
+        where id = #{id}
+    </update>
+
+    <select id="getBillsByQueryCondition" parameterType="top.study02.pojo.Bill" resultMap="billMap">
+    select * from bill as tb1
+      left join
+      (select id as pid ,proId,providerName ,contacts ,`describe`,address,contactPhone,faxNum,createDate as pcreateDate
+      from provider) as tb2
+      on tb1.provider=tb2.pid
+      <where>
+          <if test="payment!=null">
+              payment=#{payment}
+          </if>
+          <if test="provider.id!=0">
+            and  pid=#{provider.id}
+          </if>
+          <if test="!goodsName.equals('')">
+             and goodsName=#{goodsName}
+          </if>
+      </where>
+    </select>
+
+    <delete id="removeBillByPrimaryKey" parameterType="top.study02.pojo.Bill">
+        delete from bill where id = #{id}
+    </delete>
+
+    <select id="getBillByGoodsId" resultMap="billMap">
+           select * from bill as tb1
+      left join
+      (select id as pid ,proId,providerName ,contacts ,`describe`,address,contactPhone,faxNum,createDate as pcreateDate
+      from provider) as tb2
+      on tb1.provider=tb2.pid having goodsId = #{goodsId}
+    </select>
+
+    <insert id="addBill">
+        INSERT INTO `homework`.`bill` (`goodsId`, `goodsName`, `goodsPrice`, `payment`, `createDate`, `provider`, `goodsNum`, `unit`)
+        VALUES ( #{goodsId}, #{goodsName}, #{goodsPrice}, #{payment}, #{createDate}, #{provider.id}, #{goodsNum}, #{unit});
+    </insert>
+
+</mapper>

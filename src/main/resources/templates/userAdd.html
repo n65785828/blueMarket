@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>超市账单管理系统</title>
+    <link rel="stylesheet" href="css/public.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+<!--头部-->
+<header class="publicHeader" th:replace="~{public::publicHeader}">
+</header>
+<!--时间-->
+<section class="publicTime">
+    <span id="time">2015年1月1日 11:11  星期一</span>
+    <a href="#">温馨提示：为了能正常浏览，请使用高版本浏览器！（IE10+）</a>
+</section>
+<!--主体内容-->
+<section class="publicMian ">
+    <div class="left">
+        <h2 class="leftH2"><span class="span1"></span>功能列表 <span></span></h2>
+        <nav>
+            <ul class="list">
+                <li><a href="billList.html">账单管理</a></li>
+                <li><a href="providerList.html">供应商管理</a></li>
+                <li id="active"><a href="userList.html?pageSize=8">用户管理</a></li>
+                <li><a href="password.html">密码修改</a></li>
+                <li><a href="login.html">退出系统</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="right">
+        <div class="location">
+            <strong>你现在所在的位置是:</strong>
+            <span>用户管理页面 >> 用户添加页面</span>
+        </div>
+        <div class="providerAdd">
+            <form th:action="@{/addUser}" method="post" id="addUserForm">
+                <div class="">
+                    <label for="userId">用户编码：</label>
+                    <input type="text" name="userId" id="userId"/>
+                    <span id="userIdSpan"></span>
+                </div>
+                <div>
+                    <label for="userName">用户名称：</label>
+                    <input type="text" name="userName" id="userName"/>
+                    <span id="userNameSpan"></span>
+                </div>
+                <div>
+                    <label for="userpassword">用户密码：</label>
+                    <input type="text" name="userPassword" id="userpassword"/>
+                    <span id="userpasswordSpan" style="color: red"></span>
+                </div>
+                <div>
+                    <label for="userRemi">确认密码：</label>
+                    <input type="text" name="userRemi" id="userRemi"/>
+                    <span id="reuserpasswordSpan" style="color: red"></span>
+                </div>
+                <div>
+                    <label>用户性别：</label>
+                    <select name="sex">
+                        <option value="true">男</option>
+                        <option value="false">女</option>
+                    </select>
+                    <span></span>
+                </div>
+                <div>
+                    <label for="data">出生日期：</label>
+                    <input id="data" name="birthday" type="date" value="2015-09-24"/>
+                    <!--<input type="text" name="birthday" id="data"/>-->
+                    <span>*</span>
+                </div>
+                <div>
+                    <label for="userphone">用户电话：</label>
+                    <input type="text" name="userphone" id="userphone"/>
+                    <span id="userphoneSpan" style="color: red">*</span>
+                </div>
+                <div>
+                    <label for="userAddress">用户地址：</label>
+                    <input type="text" name="userAddress" id="userAddress"/>
+                    <span id="userAddressSpan" style="color: red">*</span>
+                </div>
+                <div>
+                    <label>用户类别：</label>
+                    <input type="radio" th:disabled="${session.user.userlv=='经理'}?disabled" name="userlv" value="管理员"/>管理员
+                    <input type="radio" th:disabled="${session.user.userlv=='经理'}?disabled" name="userlv" value="经理"/>经理
+                    <input type="radio" name="userlv" value="普通用户" checked/>普通用户
+                </div>
+                <div class="providerAddBtn">
+                    <!--<a href="#">保存</a>-->
+                    <!--<a href="userList.html">返回</a>-->
+                    <input type="button" value="保存" id="submit_form"/>
+                    <input type="button" value="返回" onclick="history.back(-1)"/>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>
+<footer class="footer">
+</footer>
+<script src="js/time.js"></script>
+<script>
+    var check01 = 1;
+    var check02 = 1;
+    var check03 = 1;
+    var check04 = 1;
+    var check05 = 1;
+    $(function () {
+        $("#submit_form").click(function () {
+            $("#userAddress").change();
+            $("#userphone").change();
+            $("#userpassword").change();
+            $("#userRemi").change();
+            $("#userId").change();
+            $("#userName").change();
+            var check = check01 + check02 + check03 + check04 + check05;
+            if (check != 0) {
+                alert("信息有误");
+                return
+            }
+            document.forms[0].submit()
+        })
+
+        $("#userAddress").change(function () {
+            if ($("#userAddress").val().length < 3) {
+                check05 = 1;
+                $("#userAddressSpan").html("请输入正确的地址");
+                return
+            }
+            check05 = 0;
+            $("#userAddressSpan").html("");
+        })
+
+        $("#userphone").change(function () {
+            if (!(/^1[3|4|5|8][0-9]\d{4,8}$/.test($("#userphone").val()))) {
+                $("#userphoneSpan").html("不是完整的11位手机号或者正确的手机号前七位");
+                check04 = 1;
+                return
+            }
+            $("#userphoneSpan").html("");
+            check04 = 0;
+        })
+
+        $("#userpassword").change(function () {
+            var jqId = "#userpassword";
+            if ($(jqId).val().length < 6) {
+                $("#userpasswordSpan").html("密码长度不得低于6位")
+                check03 = 1;
+                return;
+            }
+            if ($("#userpassword").val() != $("#userRemi").val()) {
+                check03 = 1;
+                $("#userpasswordSpan").html("密码不一致")
+                return;
+            }
+            $("#userpasswordSpan").html("")
+            check03 = 0;
+        })
+
+        $("#userRemi").change(function () {
+            var jqId = "#userRemi";
+            if ($(jqId).val().length < 6) {
+                $("#userpasswordSpan").html("密码长度不得低于6位")
+                check03 = 1;
+                return;
+            }
+            if ($("#userpassword").val() != $("#userRemi").val()) {
+                check03 = 1;
+                $("#userpasswordSpan").html("密码不一致")
+                return;
+            }
+            $("#userpasswordSpan").html("")
+            check03 = 0;
+        })
+
+
+        $("#userId").change(function () {
+            $.ajax({
+                type: "post",
+                url: "/checkUserId",
+                dataType: "json",//预期服务器返回数据类型
+                data: $("#addUserForm").serialize(),
+                success: function (msg) {
+                    if (msg.result == "1") {
+                        $("#userIdSpan").html("");
+                        check01 = 0;
+                    } else {
+                        $("#userIdSpan").html("用户编码已存在，请重新输入")
+                        $("#userIdSpan").css("color", "red");
+                        check01 = 1;
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        })
+
+        // $("#userName").change(function () {
+        //     $.ajax({
+        //         type: "post",
+        //         url: "/checkUserId",
+        //         dataType: "json",//预期服务器返回数据类型
+        //         data: $("#addUserForm").serialize(),
+        //         success: function (msg) {
+        //             if (msg.result == "1") {
+        //                 $("#userIdSpan").html("");
+        //                 check01 = 0;
+        //             } else {
+        //                 $("#userIdSpan").html("用户编码已存在，请重新输入")
+        //                 $("#userIdSpan").css("color", "red");
+        //                 check01 = 1;
+        //             }
+        //         },
+        //         error: function () {
+        //             alert("error");
+        //         }
+        //     });
+        // })
+
+        $("#userName").change(function () {
+            $.ajax({
+                type: "post",
+                url: "/checkUserName",
+                dataType: "json",//预期服务器返回数据类型
+                data: $("#addUserForm").serialize(),
+                success: function (msg) {
+                    if (msg.result == "1") {
+                        $("#userNameSpan").html("");
+                        check02 = 0;
+                    } else {
+                        $("#userNameSpan").html("用户名称已存在，请重新输入")
+                        $("#userNameSpan").css("color", "red");
+                        check02 = 1;
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        })
+    })
+</script>
+
+</body>
+</html>
